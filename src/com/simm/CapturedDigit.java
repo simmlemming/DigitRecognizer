@@ -8,10 +8,13 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class CapturedDigit {
+	@SuppressWarnings("unused")
 	private final int rowCount, columnCount;
 	private final BufferedImage image;
 	private final int chunkWidth, chunkHeight;
-	private final float rowDensity, columnDensity;
+	
+	/** How many pixels would be if it wouldnt be an int. */
+	private final float pixelsPerRow, pixelsPerColumn;
 	
 	public CapturedDigit(int columnCount, int rowCount, File fileWithDigit){
 		if (rowCount <= 0){
@@ -30,11 +33,11 @@ public class CapturedDigit {
 			throw new IllegalArgumentException("Cannot read image from file " + fileWithDigit.getAbsolutePath(), e);
 		}
 		
-		rowDensity = ((float) image.getHeight()) / rowCount;
-		columnDensity = ((float) image.getWidth()) / columnCount;
+		pixelsPerRow = ((float) image.getHeight()) / rowCount;
+		pixelsPerColumn = ((float) image.getWidth()) / columnCount;
 		
-		chunkHeight = Math.round(rowDensity);
-		chunkWidth = Math.round(columnDensity);
+		chunkHeight = Math.round(pixelsPerRow);
+		chunkWidth = Math.round(pixelsPerColumn);
 	}
 	
 	public int getWidth(){
@@ -46,8 +49,8 @@ public class CapturedDigit {
 	}
 	
 	public DigitChunk getChunkAt(int column, int row){
-		int chunkX = Math.round(column * columnDensity);
-		int chunkY = Math.round(row * rowDensity);
+		int chunkX = Math.round(column * pixelsPerColumn);
+		int chunkY = Math.round(row * pixelsPerRow);
 		
 		BufferedImage chunk = null;
 		try{
