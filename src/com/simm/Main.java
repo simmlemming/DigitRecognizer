@@ -11,31 +11,27 @@ public class Main {
 	 * @param args
 	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		logger = Logger.getAnonymousLogger();
-		int columnCount = 160;
-		int rowCount = 30;
+		int columnCount = 16;
+		int rowCount = 24;
+		String fileName = "001";
+		int numOfDigits = 5;
 		
-		CapturedDigit capturedDigit = new CapturedDigit(columnCount, rowCount, new File("samples/2.jpg"));
-		logger.info("W: " + capturedDigit.getWidth() + ", H: " + capturedDigit.getHeight());
+		CapturedNumber capturedNumber = new CapturedNumber(numOfDigits, new File("samples", fileName + ".jpg"));
 		
-		String row = "\n";
-//		String levels = "\n";
-		for(int r = 0; r < rowCount; r++){
-			for(int c = 0; c < columnCount; c++){
-				DigitChunk chunk = capturedDigit.getChunkAt(c, r);
-//				chunk.saveToFile(new File("tmp", c + "x" + r + ".jpg"));
-//				levels += chunk.getAverageGrayLevel() + ", ";
-				if (chunk.getAverageGrayLevel() < 128){
-					row += "#";
-				} else {
-					row += "-";
-				}
-			}
-			row += "\n";
-//			levels += "\n";
+		CapturedDigit[] capturedDigits = new CapturedDigit[numOfDigits];
+		for(int i = 0; i < numOfDigits; i++){
+			CapturedDigit digit = capturedNumber.getDigit(i);
+			digit.saveToFile(new File("tmp", fileName + "." + i + ".jpg"));
+			digit.divideIntoChunks(columnCount, rowCount);
+			digit.print(logger);
+			
+			CapturedDigit cropped = digit.crop(columnCount, rowCount);
+			cropped.saveToFile(new File("tmp", fileName + "." + i + ".cropped.jpg"));
+			cropped.divideIntoChunks(columnCount, rowCount);
+			cropped.print(logger);
 		}
-		logger.info(row);
-//		logger.info(levels);
 	}
+		
 }
