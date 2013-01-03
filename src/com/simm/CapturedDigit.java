@@ -25,6 +25,16 @@ public class CapturedDigit {
 	public CapturedDigit(File fileWithDigit){
 		try {
 			setImage(ImageIO.read(fileWithDigit));
+			split(image.getWidth(), image.getHeight());
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Cannot read image from file " + fileWithDigit.getAbsolutePath(), e);
+		}		
+	}
+
+	public CapturedDigit(File fileWithDigit, int columnCount, int rowCount){
+		try {
+			setImage(ImageIO.read(fileWithDigit));
+			split(columnCount, rowCount);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot read image from file " + fileWithDigit.getAbsolutePath(), e);
 		}		
@@ -32,33 +42,44 @@ public class CapturedDigit {
 	
 	public CapturedDigit(BufferedImage image){
 		setImage(image);
+		split(image.getWidth(), image.getHeight());
 	}
-	
-	public void divideIntoChunks(int columnCount, int rowCount){
-		if (rowCount <= 0){
-			throw new IllegalArgumentException("rowCount must be > 0");
-		}
-		if (columnCount <= 0){
-			throw new IllegalArgumentException("collumnCount must be > 0");
-		}
 
-		this.columnCount = columnCount;
-		this.rowCount = rowCount;		
-
-		//image comes from constructor, there is no way image is null here
-		pixelsPerRow = ((float) image.getHeight()) / rowCount;
-		pixelsPerColumn = ((float) image.getWidth()) / columnCount;
-		
-		chunkHeight = Math.round(pixelsPerRow);
-		chunkWidth = Math.round(pixelsPerColumn);
+	public CapturedDigit(BufferedImage image, int columnCount, int rowCount){
+		setImage(image);
+		split(columnCount, rowCount);
 	}
-	
+
 	private void setImage(BufferedImage image){
 		if(image == null){
 			throw new IllegalArgumentException("Image cannot be null.");
 		}
 		
 		this.image = image;
+	}
+	
+	private void split(int columnCount, int rowCount){
+		if (rowCount <= 0){
+			throw new IllegalArgumentException("rowCount must be > 0");
+		}
+		if (columnCount <= 0){
+			throw new IllegalArgumentException("collumnCount must be > 0");
+		}
+		
+		this.columnCount = columnCount;
+		this.rowCount = rowCount;		
+		
+		//image comes from constructor, there is no way image is null here
+		pixelsPerRow = ((float) image.getHeight()) / rowCount;
+		pixelsPerColumn = ((float) image.getWidth()) / columnCount;
+		
+		chunkHeight = Math.round(pixelsPerRow);
+		chunkWidth = Math.round(pixelsPerColumn);
+		
+	}
+	
+	public CapturedDigit reSplit(int columnCount, int rowCount){
+		return new CapturedDigit(image, columnCount, rowCount);
 	}
 	
 	public int getWidth(){
@@ -97,8 +118,7 @@ public class CapturedDigit {
 		return new DigitChunk(getImageForChunkAt(column, row));
 	}
 	
-	public CapturedDigit crop(int columnCount, int rowCount){
-		divideIntoChunks(columnCount, rowCount);
+	public CapturedDigit crop(){
 		int rowThreshold = columnCount / 20 + 1;
 		int columnThreshold = rowCount / 20 + 1;
 		Predicate<DigitChunk[]> darkRowFound = new DarkLineFound(CapturedDigit.darkThreshold(), rowThreshold);
@@ -109,7 +129,7 @@ public class CapturedDigit {
 //		logger.info(String.format("Rows: [%s,%s]", rows.min(), rows.max()));
 
 		StoreMinAndMax columns = new StoreMinAndMax();
-		applyToColum(darkColumsFound, columns);
+		applyToColumn(darkColumsFound, columns);
 //		logger.info(String.format("Columns: [%s,%s]", columns.min(), columns.max()));
 
 		int x = Math.round(columns.min() * pixelsPerColumn);
@@ -119,11 +139,6 @@ public class CapturedDigit {
 		
 		BufferedImage subimage = image.getSubimage(x, y, w, h);
 		return new CapturedDigit(subimage);
-	}
-
-	
-	public CapturedDigit crop(){
-		return crop(image.getWidth(), image.getHeight());
 	}
 	
 	public void saveToFile(File output){
@@ -177,7 +192,7 @@ public class CapturedDigit {
 		}
 	}
 	
-	public void applyToColum(Predicate<DigitChunk[]> predicate, Action<Integer> action){
+	public void applyToColumn(Predicate<DigitChunk[]> predicate, Action<Integer> action){
 		for(int c = 0; c < columnCount; c++){
 			DigitChunk[] column = getColumn(c);
 			boolean applied = predicate.apply(column);

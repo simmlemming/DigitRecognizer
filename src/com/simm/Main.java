@@ -20,17 +20,15 @@ public class Main {
 		
 		CapturedNumber capturedNumber = new CapturedNumber(numOfDigits, new File("samples", fileName + ".jpg"));
 		
-		CapturedDigit[] capturedDigits = new CapturedDigit[numOfDigits];
+//		CapturedDigit[] capturedDigits = new CapturedDigit[numOfDigits];
 		for(int i = 0; i < numOfDigits; i++){
 			CapturedDigit digit = capturedNumber.getDigit(i);
 			digit.saveToFile(new File("tmp", fileName + "." + i + ".jpg"));
-			digit.divideIntoChunks(columnCount, rowCount);
-			digit.print(logger);
+			digit.reSplit(columnCount, rowCount).print(logger);
 			
-			CapturedDigit cropped = digit.crop(columnCount, rowCount);
+			CapturedDigit cropped = digit.crop();
 			cropped.saveToFile(new File("tmp", fileName + "." + i + ".cropped.jpg"));
-			cropped.divideIntoChunks(columnCount, rowCount);
-			cropped.print(logger);
+			cropped.reSplit(columnCount, rowCount).print(logger);
 		}
 	}
 		
