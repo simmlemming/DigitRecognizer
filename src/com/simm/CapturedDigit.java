@@ -207,6 +207,46 @@ public class CapturedDigit {
 		return 128;
 	}
 	
+	private int[][] toMatrix(){
+		int[][] matrix = new int[rowCount][columnCount];
+		
+		for(int r = 0; r < rowCount; r++){
+			for(int c = 0; c < columnCount; c++){
+				DigitChunk chunk = getChunkAt(c, r);
+				if (chunk.getAverageGrayLevel() < darkThreshold()){
+					matrix[r][c] = 1;
+				} else {
+					matrix[r][c] = 0;
+				}
+			}
+		}
+		
+		return matrix;
+	}
+	
+	public int distanceTo(CapturedDigit digit){
+		int[][] otherMatrix = digit.reSplit(columnCount, rowCount).toMatrix();
+		int[][] thisMatrix = toMatrix();
+		int distance = 0;
+		
+		for(int r = 0; r < rowCount; r++){
+			for(int c = 0; c < columnCount; c++){
+				boolean same = otherMatrix[r][c] == thisMatrix[r][c];
+				if (!same){
+					distance++;
+				}
+			}
+		}
+		
+		return distance;
+	}
+	
+	public float relativeDistanceTo(CapturedDigit digit){
+		int distance = distanceTo(digit);
+		
+		return ((float) distance) / columnCount / rowCount;
+	}
+	
 	public void print(Logger logger){
 		String info = String.format("Width: %s, height: %s, ppr: %s, ppc = %s",
 				getWidth(), getHeight(), pixelsPerRow, pixelsPerColumn);
