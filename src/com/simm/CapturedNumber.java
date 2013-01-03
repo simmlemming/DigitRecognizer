@@ -9,8 +9,7 @@ public class CapturedNumber {
 	
 	public CapturedNumber(int digitCount, File fileWithNumber) {
 		this.digitCount = digitCount;
-		number = new CapturedDigit(fileWithNumber);
-		number.divideIntoChunks(digitCount, 1);
+		number = new CapturedDigit(fileWithNumber, digitCount, 1);
 	}
 	
 	public CapturedDigit getDigit(int position){
