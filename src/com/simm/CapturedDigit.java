@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileSystemView;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;

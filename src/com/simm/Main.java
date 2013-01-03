@@ -1,7 +1,7 @@
 package com.simm;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 public class Main {
@@ -18,14 +18,21 @@ public class Main {
 		String fileName = "001";
 		int numOfDigits = 5;
 	
-		CapturedDigit first = new CapturedDigit(new File("samples", "4.jpg"), columnCount, rowCount);
-		CapturedDigit second = new CapturedDigit(new File("samples", "9.jpg"));
+		Samples samples = new Samples("samples");
+		Iterator<CapturedDigit> digits = samples.digitsFor(4);
+		while (digits.hasNext()) {
+			CapturedDigit digit = digits.next();
+			digit.reSplit(columnCount, rowCount).print(logger);
+		}
 		
-		int distance = first.distanceTo(second);
-		float relativeDistance = first.relativeDistanceTo(second);
+		//CapturedDigit first = new CapturedDigit(new File("samples", "4.jpg"), columnCount, rowCount);
+		//CapturedDigit second = new CapturedDigit(new File("samples", "9.jpg"));
 		
-		logger.info(String.valueOf(distance));
-		logger.info(String.valueOf(relativeDistance));
+		//int distance = first.distanceTo(second);
+		//float relativeDistance = first.relativeDistanceTo(second);
+		
+		//logger.info(String.valueOf(distance));
+		//logger.info(String.valueOf(relativeDistance));
 		
 //		CapturedNumber capturedNumber = new CapturedNumber(numOfDigits, new File("samples", fileName + ".jpg"));
 		
