@@ -239,7 +239,7 @@ public class CapturedDigit {
 		return new int[] {minLevel, maxLevel};
 	}
 	
-	public int darkThreshold(){
+	private int darkThreshold(){
 		return darkThreshold;
 	}
 	
