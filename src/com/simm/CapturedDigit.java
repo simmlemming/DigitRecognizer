@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import javax.swing.filechooser.FileSystemView;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -19,36 +18,36 @@ public class CapturedDigit {
 	private int rowCount, columnCount;
 	private BufferedImage image;
 	private int chunkWidth, chunkHeight;
-	
 	/** How many pixels would be if it wouldnt be an int. */
 	private float pixelsPerRow, pixelsPerColumn;
+
+	private int darkThreshold = 128;
+	private String fileName = "-";
+	private final static int USE_IMAGE_DIMENTIONS = -1;
 	
 	public CapturedDigit(File fileWithDigit){
-		try {
-			setImage(ImageIO.read(fileWithDigit));
-			split(image.getWidth(), image.getHeight());
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Cannot read image from file " + fileWithDigit.getAbsolutePath(), e);
-		}		
+		this(fileWithDigit, USE_IMAGE_DIMENTIONS, USE_IMAGE_DIMENTIONS);
 	}
 
 	public CapturedDigit(File fileWithDigit, int columnCount, int rowCount){
 		try {
 			setImage(ImageIO.read(fileWithDigit));
 			split(columnCount, rowCount);
+			darkThreshold = calculateDarkThreshold();
+			fileName = fileWithDigit.getName();
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot read image from file " + fileWithDigit.getAbsolutePath(), e);
 		}		
 	}
 	
 	public CapturedDigit(BufferedImage image){
-		setImage(image);
-		split(image.getWidth(), image.getHeight());
+		this(image, USE_IMAGE_DIMENTIONS, USE_IMAGE_DIMENTIONS);
 	}
 
 	public CapturedDigit(BufferedImage image, int columnCount, int rowCount){
 		setImage(image);
 		split(columnCount, rowCount);
+		darkThreshold = calculateDarkThreshold();
 	}
 
 	private void setImage(BufferedImage image){
@@ -60,9 +59,19 @@ public class CapturedDigit {
 	}
 	
 	private void split(int columnCount, int rowCount){
+		//image comes from constructor, there is no way image is null here
+		if (columnCount == USE_IMAGE_DIMENTIONS){
+			columnCount = image.getWidth();
+		}
+
+		if (rowCount == USE_IMAGE_DIMENTIONS){
+			rowCount = image.getHeight();
+		}
+		
 		if (rowCount <= 0){
 			throw new IllegalArgumentException("rowCount must be > 0");
 		}
+		
 		if (columnCount <= 0){
 			throw new IllegalArgumentException("collumnCount must be > 0");
 		}
@@ -70,13 +79,11 @@ public class CapturedDigit {
 		this.columnCount = columnCount;
 		this.rowCount = rowCount;		
 		
-		//image comes from constructor, there is no way image is null here
-		pixelsPerRow = ((float) image.getHeight()) / rowCount;
-		pixelsPerColumn = ((float) image.getWidth()) / columnCount;
+		pixelsPerRow = ((float) image.getHeight()) / this.rowCount;
+		pixelsPerColumn = ((float) image.getWidth()) / this.columnCount;
 		
 		chunkHeight = Math.round(pixelsPerRow);
 		chunkWidth = Math.round(pixelsPerColumn);
-		
 	}
 	
 	public CapturedDigit reSplit(int columnCount, int rowCount){
@@ -120,10 +127,10 @@ public class CapturedDigit {
 	}
 	
 	public CapturedDigit crop(){
-		int rowThreshold = columnCount / 20 + 1;
-		int columnThreshold = rowCount / 20 + 1;
-		Predicate<DigitChunk[]> darkRowFound = new DarkLineFound(CapturedDigit.darkThreshold(), rowThreshold);
-		Predicate<DigitChunk[]> darkColumsFound = new DarkLineFound(CapturedDigit.darkThreshold(), columnThreshold);
+		int rowThreshold = columnCount / 5 + 1;
+		int columnThreshold = rowCount / 5 + 1;
+		Predicate<DigitChunk[]> darkRowFound = new DarkLineFound(darkThreshold(), rowThreshold);
+		Predicate<DigitChunk[]> darkColumsFound = new DarkLineFound(darkThreshold(), columnThreshold);
 
 		StoreMinAndMax rows = new StoreMinAndMax();
 		applyToRow(darkRowFound, rows);
@@ -204,8 +211,36 @@ public class CapturedDigit {
 	}
 
 	
-	public static int darkThreshold(){
-		return 128;
+	private int calculateDarkThreshold(){
+		int t = rowCount / 3;
+		int[] minAndMax1 = minAndMaxGrayLevelForRow(t);
+		int[] minAndMax2 = minAndMaxGrayLevelForRow(2 * t);
+		
+		int maxLevel = Math.max(minAndMax1[1], minAndMax2[1]);
+		int minLevel = Math.min(minAndMax1[0], minAndMax2[0]);
+		
+//		return (int)Math.round((maxLevel + minLevel) * 0.5);
+		double l = (maxLevel  + minLevel) * 0.5;
+//		return (int)Math.round(l);
+		return (maxLevel  + minLevel) / 2;
+	}
+	
+	private int[] minAndMaxGrayLevelForRow(int row){
+		int maxLevel = Integer.MIN_VALUE;
+		int minLevel = Integer.MAX_VALUE;
+		
+		for(int i = 0; i < columnCount; i++){
+			DigitChunk chunk = getChunkAt(i, row);
+			int chunkLevel = chunk.getAverageGrayLevel();
+			maxLevel = Math.max(maxLevel, chunkLevel);
+			minLevel = Math.min(minLevel, chunkLevel);
+		}
+		
+		return new int[] {minLevel, maxLevel};
+	}
+	
+	public int darkThreshold(){
+		return darkThreshold;
 	}
 	
 	private int[][] toMatrix(){
@@ -249,8 +284,8 @@ public class CapturedDigit {
 	}
 	
 	public void print(Logger logger){
-		String info = String.format("Width: %s, height: %s, ppr: %s, ppc = %s",
-				getWidth(), getHeight(), pixelsPerRow, pixelsPerColumn);
+		String info = String.format("\nFile: %s,\nWidth: %s, height: %s,\nppr: %s, ppc = %s,\ndark threshold = %s",
+				fileName, getWidth(), getHeight(), pixelsPerRow, pixelsPerColumn, darkThreshold());
 		StringBuilder matrix = new StringBuilder(info).append("\n");
 		for(int r = 0; r < rowCount; r++){
 			if (r < 10) matrix.append(" ");

@@ -4,28 +4,36 @@ import com.google.common.base.Predicate;
 
 public class Predicates {
 	public static class DarkLineFound implements Predicate<DigitChunk[]>{
-		private int chunksInDarkLine;
+		private int chunksInWhiteLine;
 		private int darkThreshold;
 		
-		public DarkLineFound(int darkThreshold, int chunksInDarkLine){
+		public DarkLineFound(int darkThreshold, int chunksInWhiteLine){
 			this.darkThreshold = darkThreshold;
-			this.chunksInDarkLine = chunksInDarkLine;
+			this.chunksInWhiteLine = chunksInWhiteLine;
 		}
 		
 		@Override
 		public boolean apply(DigitChunk[] chunks) {
-			int darkCunkCount = 0;
+			int whiteChunkCount = 0;
 			
 			for(int i = 0; i < chunks.length; i++){
 				int level = chunks[i].getAverageGrayLevel();
-				if (level < darkThreshold){
-					darkCunkCount++;
+				if (level > darkThreshold){
+					whiteChunkCount++;
 				}
 			}
 			
-			return darkCunkCount >= chunksInDarkLine;
+			return whiteChunkCount >= chunksInWhiteLine;
 		}
 		
 	}
 
+	public static class All implements Predicate<DigitChunk[]>{
+
+		@Override
+		public boolean apply(DigitChunk[] arg0) {
+			return true;
+		}
+		
+	}
 }
