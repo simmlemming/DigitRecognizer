@@ -115,8 +115,8 @@ public class CapturedDigit {
 		try{
 			subImage = image.getSubimage(chunkX, chunkY, chunkWidth, chunkHeight);
 		} catch (RasterFormatException e) {
-			String message = String.format("Cannot return chunk at (%s,%s): chunkWidth = %s, chunkHeight = %s, imageWidth = %s, imageHeight = %s",
-					row, column, chunkWidth, chunkHeight, image.getWidth(), image.getHeight());
+			String message = String.format("Cannot return chunk at (%s,%s): chunkWidth = %s, chunkHeight = %s, imageWidth = %s, imageHeight = %s, file = %s",
+					row, column, chunkWidth, chunkHeight, image.getWidth(), image.getHeight(), fileName);
 			throw new IllegalArgumentException(message, e);
 		}
 		

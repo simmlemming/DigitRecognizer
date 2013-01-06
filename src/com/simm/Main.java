@@ -1,14 +1,13 @@
 package com.simm;
 
-import java.awt.image.RasterFormatException;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.logging.Logger;
 
 import com.simm.captured.CapturedDigit;
+import com.simm.captured.CapturedNumber;
+import com.simm.matchers.MatchPair;
 import com.simm.matchers.Matcher;
 import com.simm.samples.Samples;
 
@@ -21,23 +20,23 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		logger = Logger.getAnonymousLogger();
-		int columnCount = 16;
-		int rowCount = 24;
+		int columnCount = 12;
+		int rowCount = 16;
 //		String fileName = "001";
 //		int numOfDigits = 5;
 	
-		CapturedDigit digit = new CapturedDigit(new File("samples/9/b9-1.jpg"), columnCount, rowCount);
+//		CapturedDigit digit = new CapturedDigit(new File("samples/0/b0-2.jpg"), columnCount, rowCount);
+		CapturedNumber number = new CapturedNumber(5, new File("samples/originals/49043.jpg"));
 		Matcher matcher = new Matcher(new Samples("samples"));
 		
-		float[] match = matcher.match(digit);
-		
-		StringBuilder matchInfo = new StringBuilder("\n");
-		for(int i = 0; i < 10; i++){
-			matchInfo.append(i).append(": ").append(match[i]).append("\n");
+		for(int i = 0; i < 5; i++){
+			CapturedDigit digit = number.getDigit(i);
+			CapturedDigit cropped = digit.crop().reSplit(columnCount, rowCount);
+			List<MatchPair> match = matcher.match(cropped);
+			printMatchResponse(match);
+			
 		}
-		
-		logger.info(matchInfo.toString());
-		
+				
 //		File[] files = new File("samples/preprocessed").listFiles(new FilenameFilter() {
 //			
 //			@Override
@@ -100,4 +99,12 @@ public class Main {
 //		}
 	}
 		
+	private static void printMatchResponse(List<MatchPair> response){
+		StringBuilder matchInfo = new StringBuilder("\n");
+		for(int i = 0; i < 10; i++){
+			matchInfo.append(response.get(i)).append("\n");
+		}
+
+		logger.info(matchInfo.toString());
+	}
 }

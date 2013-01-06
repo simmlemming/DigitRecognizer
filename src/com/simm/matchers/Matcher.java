@@ -1,6 +1,7 @@
 package com.simm.matchers;
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.simm.captured.CapturedDigit;
 import com.simm.samples.Samples;
@@ -15,18 +16,20 @@ public class Matcher {
 		this.samples = samples;
 	}
 	
-	public float[] match(CapturedDigit digit){
-		float[] matchLevels = new float[10];
+	public List<MatchPair> match(CapturedDigit digit){
+		MatchResponseBuilder matchResponse = new MatchResponseBuilder();
 		
 		for(int candidate = 0; candidate < 10; candidate++){
 			Iterator<CapturedDigit> sampleDigits = samples.digitsFor(candidate);
+			float level = 0;
 			while (sampleDigits.hasNext()) {
 				CapturedDigit sample = sampleDigits.next();
-				float newMatchLevel = 1 - sample.relativeDistanceTo(digit);
-				matchLevels[candidate] = Math.max(matchLevels[candidate], newMatchLevel);
+				float newLevel = 1 - sample.relativeDistanceTo(digit);
+				level = Math.max(level, newLevel);
 			}
+			matchResponse.addPair(new MatchPair(candidate, level));
 		}
 		
-		return matchLevels;
+		return matchResponse.build();
 	}
 }
