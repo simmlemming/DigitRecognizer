@@ -8,6 +8,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import com.simm.captured.CapturedDigit;
+import com.simm.matchers.Matcher;
+import com.simm.samples.Samples;
+
 public class Main {
 
 	private static Logger logger;

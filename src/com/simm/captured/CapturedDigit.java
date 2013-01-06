@@ -1,4 +1,4 @@
-package com.simm;
+package com.simm.captured;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
@@ -10,8 +10,9 @@ import javax.imageio.ImageIO;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.simm.Actions.StoreMinAndMax;
-import com.simm.Predicates.DarkLineFound;
+import com.simm.utils.Action;
+import com.simm.utils.Actions.StoreMinAndMax;
+import com.simm.utils.Predicates.DarkLineFound;
 
 
 public class CapturedDigit {

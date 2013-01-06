@@ -1,6 +1,7 @@
-package com.simm;
+package com.simm.utils;
 
 import com.google.common.base.Predicate;
+import com.simm.captured.DigitChunk;
 
 public class Predicates {
 	public static class DarkLineFound implements Predicate<DigitChunk[]>{

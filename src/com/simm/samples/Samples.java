@@ -1,7 +1,9 @@
-package com.simm;
+package com.simm.samples;
 
 import java.io.File;
 import java.util.Iterator;
+
+import com.simm.captured.CapturedDigit;
 
 public class Samples {
 	private final String rootFolder;
@@ -9,26 +11,26 @@ public class Samples {
 	public Samples(String rootFolder){
 		this.rootFolder = rootFolder;
 	}
-	
+
 	public Iterator<CapturedDigit> digitsFor(int number){
 		return new DigitsIterator(rootFolder, number);
 	}
-	
+
 	private class DigitsIterator implements Iterator<CapturedDigit>{
 		private final File[] files;
 		private int currentIndex;
-		
+
 		public DigitsIterator(String folder, int number) {
 			File rootFolder = new File(folder, String.valueOf(number));
-			
+
 			if(!rootFolder.exists()){
 				throw new IllegalArgumentException("No such directory: " + rootFolder.getAbsolutePath());
 			}
-			
+
 			if (!rootFolder.isDirectory()){
 				throw new IllegalArgumentException(rootFolder.getAbsolutePath() + " is not a directory");
 			}
-			
+
 			files = rootFolder.listFiles();
 			currentIndex = 0;
 		}
@@ -47,6 +49,6 @@ public class Samples {
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
-		
+
 	}
 }

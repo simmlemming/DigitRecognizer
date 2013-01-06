@@ -1,4 +1,5 @@
-package com.simm;
+package com.simm.utils;
+
 
 public class Actions {
 	public static class StoreMinAndMax implements Action<Integer>{

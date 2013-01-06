@@ -1,6 +1,9 @@
-package com.simm;
+package com.simm.matchers;
 
 import java.util.Iterator;
+
+import com.simm.captured.CapturedDigit;
+import com.simm.samples.Samples;
 
 public class Matcher {
 	private final Samples samples;

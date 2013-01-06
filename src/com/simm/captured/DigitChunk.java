@@ -1,4 +1,4 @@
-package com.simm;
+package com.simm.captured;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
